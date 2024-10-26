@@ -25,11 +25,21 @@ To test the implementation, we use a set of 10000 randomly generated well-condit
 | BW3            |       3008            |          0        |
 | BW4            |       1129            |          0        |
 
-We can see that the POT function gives a NaN $\approx 50 \%$ of the time because of the implementation instability. If we retry with well-conditionned matrices, the NaN frequency drops to $0 \%$. The implementation BW1 using the natural implementations improves efficiency a bit and is more stable. We can see that the implementation BW2 that uses torch.einsum is inefficient due to the PyTorch implementation. Indeed, if we change torch.einsum(t) by torch.tensor(np.einsum(t.detach().cpu().numpy())) (which is the difference between BW2 and BW3), we obtain a better computation time even though changing the tensor to a numpy array to a tensor is inefficient. We see that the implementation BW4 is $\approx 2.25$ times faster than the POT implementation on my CPU. The result may be different on a GPU.
+We can see that the POT function gives a NaN $\approx 50 \%$ of the time because of the implementation instability. If we retry with well-conditionned matrices, the NaN frequency drops to $0 \%$. The implementation BW1 using the natural implementations improves efficiency a bit and is more stable. We can see that the implementation BW2 that uses torch.einsum is inefficient due to the PyTorch implementation. Indeed, if we change torch.einsum(t) by torch.tensor(np.einsum(t.detach().cpu().numpy())) (which is the difference between BW2 and BW3), we obtain a better computation time even though changing the tensor to a numpy array to a tensor is inefficient. We see that the implementation BW4 is $\approx 2.25$ times faster than the POT implementation on a CPU. The result may be different on a GPU.
 
 We can see by changing the condition number that it is responsible for the NaN returned by the POT function.
 |   Implementation  | $\kappa = 10$ | $\kappa = 10^2$ | $\kappa = 10^3$ | $\kappa = 10^4$ | $\kappa = 10^5$ | $\kappa = 10^6$ |
 |-------------------|---------------|-----------------|-----------------|-----------------|-----------------|-----------------|
 | NaN frequency (%) |       0       |         0       |         2935    |         5028    |         5021    |         5398    |
 
-# Comparison on a benchmark of 10000 random matrices $30 \times 30$
+# Comparison on a benchmark of random matrices of different dimensions
+The following table shows the  influence of the dimension on the computation efficiency difference between the different implementations.
+| Implementation | $3 \times 3$ | $30 \times 30$ | $300 \times 300$ | $3000 \times 3000$ |
+|----------------|--------------|----------------|------------------|--------------------|
+| POT            |       2550   |    4709        | 996              | 5539               |
+| BW1            |       2425   |          4621  | 29225            | 15123              |
+| BW2            |       3295   |          5458  | 27054            | 16428              |
+| BW3            |       3008   |          5099  | 26815            | 18285              |
+| BW4            |       1129   |          1627  | 781              | 2070               |
+
+We can see that the implementations that use the homemade square root function (i.e. BW1, BW2, BW3) are considerably slow compared to the others which was to be expected since the square root function in the code has not been optimized enough to compete with the scipy built in function.
