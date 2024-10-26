@@ -11,9 +11,11 @@ The Bures-Wasserstein distance is $bw(\Sigma,\Sigma')^2 = Tr(\Sigma + \Sigma') -
 To compute this term, we have multiple choices. The most natural one would be torch.trace(A@A) but it seems inefficient as we compute the full matrix product even though we only use the diagonal terms. The natural solution to this would be to use torch.einsum('ij,ji->', sig1, sig1). However, the implementation of torch.einsum also suffer from a lot of shortcomings due to the way matrix products are implemented in PyTorch (see https://github.com/pytorch/pytorch/issues/101249). Hence we should actually expect bad results from this optimization.
 
 ## $Tr((A B^2 A)^{1/2})$
-To compute this term, we rewrite it as $Tr(((B A)^T(A B))^{1/2})$. Therefore, using torch.linalg.svdvals, we obtain the singular values $s_i$ of $B A$ and so we get $Tr((A B^2 A)^{1/2}) = \sum_i s_i$.
+To compute this term, we rewrite it as $Tr(((B A)^T(A B))^{1/2})$. The most natural way to do this would be the computation of the square root but it seems inefficient to do this only to sum up the diagonal terms. Therefore, using torch.linalg.svdvals, we obtain the singular values $s_i$ of $B A$ and so we get $Tr((A B^2 A)^{1/2}) = \sum_i s_i$.
 
 # Comparison on a benchmark of 10000 random matrices $3 \times 3$
+
+To test the implementation, we use a set of 10000 randomly generated well-conditionned $3 \times 3$ matrices ($\kappa = 10$) for the time computation and not so well-conditionned matrices ($\kappa = 10^4$ vs $\kappa = 10$) for the stability (NaN frequency). 
 
 | Implementation | Computation time (ms) | NaN frequency (%) |
 |----------------|-----------------------|-------------------|
@@ -22,3 +24,12 @@ To compute this term, we rewrite it as $Tr(((B A)^T(A B))^{1/2})$. Therefore, us
 | BW2            |       3295            |          0        |
 | BW3            |       3008            |          0        |
 | BW4            |       1129            |          0        |
+
+We can see that the POT function gives a NaN $\approx 50 \%$ of the time because of the implementation instability. If we retry with well-conditionned matrices, the NaN frequency drops to $0 \%$. The implementation BW1 using the natural implementations improves efficiency a bit and is more stable. We can see that the implementation BW2 that uses torch.einsum is inefficient due to the PyTorch implementation. Indeed, if we change torch.einsum(t) by torch.tensor(np.einsum(t.detach().cpu().numpy())) (which is the difference between BW2 and BW3), we obtain a better computation time even though changing the tensor to a numpy array to a tensor is inefficient. We see that the implementation BW4 is $\approx 2.25$ times faster than the POT implementation on my CPU. The result may be different on a GPU.
+
+We can see by changing the condition number that it is responsible for the NaN returned by the POT function.
+|   Implementation  | $\kappa = 10$ | $\kappa = 10^2$ | $\kappa = 10^3$ | $\kappa = 10^4$ | $\kappa = 10^5$ | $\kappa = 10^6$ |
+|-------------------|---------------|-----------------|-----------------|-----------------|-----------------|-----------------|
+| NaN frequency (%) |       0       |         0       |         2935    |         5028    |         5021    |         5398    |
+
+# Comparison on a benchmark of 10000 random matrices $30 \times 30$
