@@ -33,7 +33,7 @@ We can see by changing the condition number that it is responsible for the NaN r
 | NaN frequency (%) |       0       |         0       |         2935    |         5028    |         5021    |         5398    |
 
 # Comparison on a benchmark of random matrices of different dimensions
-The following table shows the  influence of the dimension on the computation efficiency difference between the different implementations.
+The following table shows the  influence of the dimension on the computation efficiency difference between the different implementations. The data is the computation time in ms.
 | Implementation | $3 \times 3$ | $30 \times 30$ | $300 \times 300$ | $3000 \times 3000$ |
 |----------------|--------------|----------------|------------------|--------------------|
 | POT            |       2550   |    4709        | 996              | 5539               |
@@ -42,4 +42,4 @@ The following table shows the  influence of the dimension on the computation eff
 | BW3            |       3008   |          5099  | 26815            | 18285              |
 | BW4            |       1129   |          1627  | 781              | 2070               |
 
-We can see that the implementations that use the homemade square root function (i.e. BW1, BW2, BW3) are considerably slow compared to the others which was to be expected since the square root function in the code has not been optimized enough to compete with the scipy built in function.
+We can see that the implementations that use the homemade square root function (i.e. BW1, BW2, BW3) are considerably slow compared to the others which was to be expected since the square root function in the code has not been optimized enough to compete with the scipy built in function. We see that a weird thing happens in middle-dimension (between $30$ and $300$) that makes the implementation faster for those dimensions. This is probably due to the way matrix products are optimized since this optimization is for machine/deep learning that generally use matrice of this size.
