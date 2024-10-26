@@ -30,7 +30,7 @@ We can see that the POT function gives a NaN $\approx 50$% of the time because o
 We can see by changing the condition number that it is responsible for the NaN returned by the POT function.
 |   Implementation  | $\kappa = 10$ | $\kappa = 10^2$ | $\kappa = 10^3$ | $\kappa = 10^4$ | $\kappa = 10^5$ | $\kappa = 10^6$ |
 |-------------------|---------------|-----------------|-----------------|-----------------|-----------------|-----------------|
-| NaN frequency (%) |       0       |         0       |         2935    |         5028    |         5021    |         5398    |
+| NaN frequency (%) |       0       |         0       |         29.35    |         50.28    |         50.21    |         53.98    |
 
 # Comparison on a benchmark of random matrices of different dimensions
 The following table shows the  influence of the dimension on the computation efficiency difference between the different implementations. The data is the computation time in ms.
