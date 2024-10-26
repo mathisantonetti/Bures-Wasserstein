@@ -2,7 +2,7 @@
 This repository presents an efficient PyTorch implementation of the Bures-Wasserstein distance (the Wasserstein distance between multivariate Gaussian distributions) when the square roots of the matrices are known.
 
 # POT implementation
-The POT implementation in the version 0.9.4 (the latest at October 26, 2024) has a lot of shortcomings such as the lack of possibility to use another thing than the covarience matrix, the impossibility to use the function with a batch (a workaround can be found using torch.vmap but it is still annoying), the instability of the algorithm (see below) for not well-conditionned matrices and the inefficient calculation. 
+The POT implementation in the version 0.9.4 (the latest at October 26, 2024) has a lot of shortcomings such as the lack of possibility to use another thing than the covariance matrix, the impossibility to use the function with a batch (a workaround can be found using torch.vmap but it is still annoying), the instability of the algorithm (see below) for not well-conditioned matrices and the inefficient calculation. 
 
 # Our implementation
 The Bures-Wasserstein distance is $bw(\Sigma,\Sigma')^2 = Tr(\Sigma + \Sigma') - 2 Tr((\Sigma^{1/2} \Sigma' \Sigma^{1/2})^{1/2})$. Hence we have two terms to compute using the square root of $\Sigma$ (resp. $\Sigma'$), denoted $A$ (resp. $B$) in the sequel.
@@ -15,7 +15,7 @@ To compute this term, we rewrite it as $Tr(((B A)^T(A B))^{1/2})$. The most natu
 
 # Comparison on a benchmark of 10000 random matrices $3 \times 3$
 
-To test the implementation, we use a set of 10000 randomly generated well-conditionned $3 \times 3$ matrices ($\kappa = 10$) for the time computation and not so well-conditionned matrices ($\kappa = 10^4$ vs $\kappa = 10$) for the stability (NaN frequency). 
+To test the implementation, we use a set of 10000 randomly generated well-conditioned $3 \times 3$ matrices ($\kappa = 10$) for the time computation and not so well-conditioned matrices ($\kappa = 10^4$ vs $\kappa = 10$) for the stability (NaN frequency). 
 
 | Implementation | Computation time (ms) | NaN frequency (%) |
 |----------------|-----------------------|-------------------|
@@ -25,10 +25,10 @@ To test the implementation, we use a set of 10000 randomly generated well-condit
 | BW3            |       3008            |          0        |
 | BW4            |       1129            |          0        |
 
-We can see that the POT function gives a NaN $\approx 50$% of the time because of the implementation instability. If we retry with well-conditionned matrices, the NaN frequency drops to $0 \%$. The implementation BW1 using the natural implementations improves efficiency a bit and is more stable. We can see that the implementation BW2 that uses torch.einsum is inefficient due to the PyTorch implementation. Indeed, if we change torch.einsum(t) by torch.tensor(np.einsum(t.detach().cpu().numpy())) (which is the difference between BW2 and BW3), we obtain a better computation time even though changing the tensor to a numpy array to a tensor is inefficient. We see that the implementation BW4 is $\approx 2.25$ times faster than the POT implementation on a CPU. The result may be different on a GPU.
+We can see that the POT function gives a NaN $\approx 50$% of the time because of the implementation instability. If we retry with well-conditioned matrices, the NaN frequency drops to $0 \%$. The implementation BW1 using the natural implementations improves efficiency a bit and is more stable. We can see that the implementation BW2 that uses torch.einsum is inefficient due to the PyTorch implementation. Indeed, if we change torch.einsum(t) by torch.tensor(np.einsum(t.detach().cpu().numpy())) (which is the difference between BW2 and BW3), we obtain a better computation time even though changing the tensor to a numpy array to a tensor is inefficient. We see that the implementation BW4 is $\approx 2.25$ times faster than the POT implementation on a CPU. The result may be different on a GPU.
 
 We can see by changing the condition number that it is responsible for the NaN returned by the POT function.
-|   Implementation  | $\kappa = 10$ | $\kappa = 10^2$ | $\kappa = 10^3$ | $\kappa = 10^4$ | $\kappa = 10^5$ | $\kappa = 10^6$ |
+|   Condition Number  | $\kappa = 10$ | $\kappa = 10^2$ | $\kappa = 10^3$ | $\kappa = 10^4$ | $\kappa = 10^5$ | $\kappa = 10^6$ |
 |-------------------|---------------|-----------------|-----------------|-----------------|-----------------|-----------------|
 | NaN frequency (%) |       0       |         0       |         29.35    |         50.28    |         50.21    |         53.98    |
 
