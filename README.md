@@ -5,7 +5,7 @@ This repository presents an efficient PyTorch implementation of the Bures-Wasser
 The POT implementation in the version 0.9.4 (the latest at October 26, 2024) has a lot of shortcomings such as the lack of possibility to use another thing than the covariance matrix, the impossibility to use the function with a batch (a workaround can be found using torch.vmap but it is still annoying), the instability of the algorithm (see below) for not well-conditioned matrices and the inefficient calculation. 
 
 # Our implementation
-The Bures-Wasserstein distance is $bw(\Sigma,\Sigma')^2 = Tr(\Sigma + \Sigma') - 2 Tr((\Sigma^{1/2} \Sigma' \Sigma^{1/2})^{1/2})$. Hence we have two terms to compute using the square root of $\Sigma$ (resp. $\Sigma'$), denoted $A$ (resp. $B$) in the sequel.
+The Bures-Wasserstein distance is $d(g, g') = \|\mu-\mu'\|_2^2 + bw(\Sigma, \Sigma')^2$ where $bw(\Sigma,\Sigma')^2 = Tr(\Sigma + \Sigma') - 2 Tr((\Sigma^{1/2} \Sigma' \Sigma^{1/2})^{1/2})$. Hence we have two terms to compute using the square root of $\Sigma$ (resp. $\Sigma'$), denoted $A$ (resp. $B$) in the sequel.
 
 ## $Tr(A^2)$
 To compute this term, we have multiple choices. The most natural one would be torch.trace(A@A) but it seems inefficient as we compute the full matrix product even though we only use the diagonal terms. The natural solution to this would be to use torch.einsum('ij,ji->', sig1, sig1). However, the implementation of torch.einsum also suffers from a lot of shortcomings due to the way matrix products are implemented in PyTorch (see https://github.com/pytorch/pytorch/issues/101249). Hence we should actually expect bad results from this optimization.
