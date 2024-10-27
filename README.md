@@ -45,9 +45,3 @@ The following table shows the  influence of the dimension on the computation eff
 | BW5            |       4855   |         10790  | 1119             | 5546               |
 
 We can see that the implementations that use the homemade square root function (i.e. BW1, BW2, BW3) are considerably slow compared to the others which was to be expected since the square root function in the code has not been optimized enough to compete with the torch.linalg.eigh that is at the basis of torch.sqrtm in POT. We see that a weird thing happens in middle/high-dimension (between $30 \times 30$ and $3000 \times 3000$) that makes the implementations POT and BW4 faster for those dimensions specifically. This is probably due to the way matrix products are optimized since this optimization is for machine/deep learning that generally use matrices of this size.
-|----------------|--------------|----------------|------------------|
-| POT            |      4760        | 10761              | 24420               |
-| BW4            |       1600  | 6941              | 11378               |
-| BW5            |       1589  | 6972              | 10137               |
-
-We see that our implementation outperforms a bit BW4 on very high dimensions but is comparable on lower dimensions (which should not be the case with a fully optimized einsum). We still get an interesting alternative to torch.trace(A@A).
