@@ -11,7 +11,7 @@ The Bures-Wasserstein distance is $bw(\Sigma,\Sigma')^2 = Tr(\Sigma + \Sigma') -
 To compute this term, we have multiple choices. The most natural one would be torch.trace(A@A) but it seems inefficient as we compute the full matrix product even though we only use the diagonal terms. The natural solution to this would be to use torch.einsum('ij,ji->', sig1, sig1). However, the implementation of torch.einsum also suffers from a lot of shortcomings due to the way matrix products are implemented in PyTorch (see https://github.com/pytorch/pytorch/issues/101249). Hence we should actually expect bad results from this optimization.
 
 ## $Tr((A B^2 A)^{1/2})$
-To compute this term, we rewrite it as $Tr(((B A)^T(A B))^{1/2})$. The most natural way to do this would be the computation of the square root but it seems inefficient to do this only to sum up the diagonal terms. Therefore, using torch.linalg.svdvals, we obtain the singular values $s_i$ of $B A$ and so we get $Tr((A B^2 A)^{1/2}) = \sum_i s_i$.
+To compute this term, we rewrite it as $Tr(((B A)^T(B A))^{1/2})$. The most natural way to do this would be the computation of the square root but it seems inefficient to do this only to sum up the diagonal terms. Therefore, using torch.linalg.svdvals, we obtain the singular values $s_i$ of $B A$ and so we get $Tr((A B^2 A)^{1/2}) = \sum_i s_i$.
 
 # Comparison on a benchmark of 10000 random matrices $3 \times 3$
 
