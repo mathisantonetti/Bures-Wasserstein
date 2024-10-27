@@ -47,3 +47,6 @@ The following table shows the  influence of the dimension on the computation eff
 We can see that the implementations that use the homemade square root function (i.e. BW1, BW2, BW3) are considerably slow compared to the others which was to be expected since the square root function in the code has not been optimized enough to compete with the torch.linalg.eigh that is at the basis of torch.sqrtm in POT. We see that a weird thing happens in middle/high-dimension (between $30 \times 30$ and $3000 \times 3000$) that makes the implementations POT and BW4 faster for those dimensions specifically. This is probably due to the way matrix products are optimized since this optimization is for machine/deep learning that generally use matrices of this size. 
 
 Clearly, the best way to implement the Bures-Wasserstein in the current PyTorch version is to take BW4 for low dimensions ($d < 100$) and BW5 for higher dimensions ($d > 100$).
+
+# Last remark
+For an even faster implementation of a loss that minimizes somehow the bures-wasserstein, we have the following inequality $$d(g,g') \leq \|\mu-\mu'\|_2^2 + Tr((\Sigma^{1/2} - (\Sigma')^{1/2})^2),$$ using the Cauchy-Schwartz inequality with the matrix scalar product.
