@@ -49,4 +49,4 @@ We can see that the implementations that use the homemade square root function (
 Clearly, the best way to implement the Bures-Wasserstein in the current PyTorch version is to take BW4 for low dimensions ($d < 100$) and BW5 for higher dimensions ($d > 100$).
 
 # Last remark
-For an even faster implementation of a loss that minimizes somehow the bures-wasserstein, we have the following inequality $$d(g,g') \leq \|\mu-\mu'\|_2^2 + Tr((\Sigma^{1/2} - (\Sigma')^{1/2})^2),$$ using the Cauchy-Schwartz inequality with the matrix scalar product.
+For an even faster implementation of a loss that minimizes somehow the bures-wasserstein, we have the following inequality $$d(g,g') \leq \|\mu-\mu'\|_2^2 + Tr((\Sigma^{1/2} - (\Sigma')^{1/2})^2),$$ using the inequality $Tr((X^T X)^{\frac{1}{2}}) \geq |Tr(X)|$ that is obvious. If you want nonetheless to prove it, the easiest way is probably to use the polar decomposition of $X$.
